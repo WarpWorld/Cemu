@@ -12,6 +12,7 @@
 #include "Cafe/HW/Latte/LegacyShaderDecompiler/LatteDecompiler.h"
 
 #include "Cafe/CafeSystem.h"
+#include "Cafe/CrowdControl.h"
 
 #include "util/helpers/helpers.h"
 #include "util/helpers/StringHelpers.h"
@@ -2979,10 +2980,20 @@ void VulkanRenderer::DrawBackbufferQuad(LatteTextureView* texView, RendererOutpu
 	renderPassInfo.clearValueCount = 0;
 
 	VkViewport viewport{};
-	viewport.x = imageX;
-	viewport.y = imageY;
-	viewport.width = imageWidth;
-	viewport.height = imageHeight;
+	if (CrowdControl::IsCameraInverted() && !padView)
+	{
+		viewport.x = (float)(imageX + imageWidth);
+		viewport.y = (float)imageY;
+		viewport.width = (float)-imageWidth;
+		viewport.height = (float)imageHeight;
+	}
+	else
+	{
+		viewport.x = (float)imageX;
+		viewport.y = (float)imageY;
+		viewport.width = (float)imageWidth;
+		viewport.height = (float)imageHeight;
+	}
 	viewport.minDepth = 0.0f;
 	viewport.maxDepth = 1.0f;
 	vkCmdSetViewport(m_state.currentCommandBuffer, 0, 1, &viewport);

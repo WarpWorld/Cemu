@@ -19,6 +19,7 @@
 #include "Cafe/HW/Latte/ISA/RegDefines.h"
 #include "Cafe/OS/libs/gx2/GX2.h"
 
+#include "Cafe/CrowdControl.h"
 #include "gui/canvas/OpenGLCanvas.h"
 
 #define STRINGIFY2(X) #X
@@ -576,7 +577,10 @@ void OpenGLRenderer::DrawBackbufferQuad(LatteTextureView* texView, RendererOutpu
 	shader->SetUniformParameters(*texView, {imageWidth, imageHeight});
 
 	// set viewport
-	glViewportIndexedf(0, imageX, imageY, imageWidth, imageHeight);
+	if (CrowdControl::IsCameraInverted() && !padView)
+		glViewportIndexedf(0, imageX + imageWidth, imageY, -imageWidth, imageHeight);
+	else
+		glViewportIndexedf(0, imageX, imageY, imageWidth, imageHeight);
 
 	LatteTextureViewGL* texViewGL = (LatteTextureViewGL*)texView;
 	texture_bindAndActivate(texView, 0);

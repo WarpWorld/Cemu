@@ -4,6 +4,8 @@ add_library(CemuCafe
   Account/Account.h
   CafeSystem.cpp
   CafeSystem.h
+  CrowdControl.cpp
+  CrowdControl.h
   Filesystem/fsc.cpp
   Filesystem/fscDeviceHostFS.cpp
   Filesystem/fscDeviceHostFS.h

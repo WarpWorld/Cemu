@@ -1,5 +1,10 @@
 # **Cemu - Wii U emulator**
 
+> **WarpWorld Crowd Control fork:** this repository includes Cemu changes for the
+> Crowd Control BOTW (Wii U) integration. See [CROWD_CONTROL.md](/CROWD_CONTROL.md)
+> for the upstream base commit (`v2.6` / `a6fb0a4`), build steps, and MPL-2.0 source
+> availability. Source: https://github.com/WarpWorld/Cemu
+
 [![Build Process](https://github.com/cemu-project/Cemu/actions/workflows/build.yml/badge.svg)](https://github.com/cemu-project/Cemu/actions/workflows/build.yml)
 [![Discord](https://img.shields.io/discord/286429969104764928?label=Cemu&logo=discord&logoColor=FFFFFF)](https://discord.gg/5psYsup)
 [![Matrix Server](https://img.shields.io/matrix/cemu:cemu.info?server_fqdn=matrix.cemu.info&label=cemu:cemu.info&logo=matrix&logoColor=FFFFFF)](https://matrix.to/#/#cemu:cemu.info)

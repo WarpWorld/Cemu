@@ -19,6 +19,7 @@
 #include "config/CemuConfig.h"
 #include "Cafe/HW/Latte/Renderer/Renderer.h"
 #include "Cafe/CafeSystem.h"
+#include "Cafe/CrowdControl.h"
 
 #include "wxHelper.h"
 
@@ -125,6 +126,9 @@ void gui_updateWindowTitles(bool isIdle, bool isLoading, double fps)
 		windowText.append(fmt::format(" [EU v{}]", titleVersion));
 	else
 		windowText.append(fmt::format(" [v{}]", titleVersion));
+
+	// Crowd Control bridge connection status
+	windowText.append(CrowdControl::GetTitleSuffix());
 
 	std::shared_lock lock(g_mutex);
 	if (g_mainFrame)

@@ -5,6 +5,7 @@
 #include "input/InputManager.h"
 #include "Cafe/HW/Latte/Core/Latte.h"
 #include "Cafe/CafeSystem.h"
+#include "Cafe/CrowdControl.h"
 #include <wx/intl.h>
 
 enum ControllerVPADMapping2 : uint32
@@ -76,7 +77,35 @@ void VPADController::VPADRead(VPADStatus_t& status, const BtnRepeat& repeat)
 
 	m_homebutton_down |= is_home_down();
 
-	const auto axis = get_axis();
+	// Crowd Control effect: swap face buttons and shoulder buttons.
+	// Applied before trig/release are derived so press/release events stay consistent.
+	if (CrowdControl::AreButtonsSwapped())
+	{
+		uint32 hold = status.hold;
+		const auto swapBits = [&hold](uint32 a, uint32 b) {
+			const bool hasA = (hold & a) != 0;
+			const bool hasB = (hold & b) != 0;
+			hold &= ~(a | b);
+			if (hasA)
+				hold |= b;
+			if (hasB)
+				hold |= a;
+		};
+		swapBits(VPAD_A, VPAD_B);
+		swapBits(VPAD_X, VPAD_Y);
+		swapBits(VPAD_L, VPAD_R);
+		swapBits(VPAD_ZL, VPAD_ZR);
+		status.hold = hold;
+	}
+
+	auto axis = get_axis();
+	// Crowd Control effect: invert the main (movement) stick. Applied to the raw
+	// axis so the emulated stick-direction hold flags below stay consistent.
+	if (CrowdControl::AreControlsInverted())
+	{
+		axis.x = -axis.x;
+		axis.y = -axis.y;
+	}
 	status.leftStick.x = axis.x;
 	status.leftStick.y = axis.y;
 

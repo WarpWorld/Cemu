@@ -26,6 +26,7 @@
 #include "Common/FileStream.h"
 #include "GamePatch.h"
 #include "HW/Espresso/Debugger/GDBStub.h"
+#include "Cafe/CrowdControl.h"
 
 #include "Cafe/IOSU/legacy/iosu_ioctl.h"
 #include "Cafe/IOSU/legacy/iosu_act.h"
@@ -856,6 +857,7 @@ namespace CafeSystem
 		// start system
 		sSystemRunning = true;
 		gui_notifyGameLoaded();
+		CrowdControl::Init(GetConfig().crowd_control_port);
 		std::thread t(_LaunchTitleThread);
 		t.detach();
 	}
@@ -987,6 +989,7 @@ namespace CafeSystem
 	{
 		if(!sSystemRunning)
 			return;
+		CrowdControl::Shutdown();
         coreinit::OSSchedulerEnd();
         Latte_Stop();
         // reset Cafe OS userspace modules

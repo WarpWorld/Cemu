@@ -502,6 +502,8 @@ struct CemuConfig
 	// debug
 	ConfigValueBounds<CrashDump> crash_dump{ CrashDump::Disabled };
 	ConfigValue<uint16> gdb_port{ 1337 };
+	// Crowd Control TCP bridge port (0 = disabled). Default 0xCC01.
+	ConfigValue<uint16> crowd_control_port{ 52225 };
 
 	void Load(XMLConfigParser& parser);
 	void Save(XMLConfigParser& parser);

@@ -4,6 +4,65 @@
 #include "input/emulated/ClassicController.h"
 #include "input/emulated/ProController.h"
 #include "input/emulated/WiimoteController.h"
+#include "Cafe/CrowdControl.h"
+
+// Crowd Control effect helpers: swap face/shoulder buttons and invert the main
+// stick on every emulated WPAD controller family (Wiimote, Classic, Pro).
+static uint32 CCSwapMask(uint32 value, uint32 a, uint32 b)
+{
+	const bool hasA = (value & a) != 0;
+	const bool hasB = (value & b) != 0;
+	value &= ~(a | b);
+	if (hasA)
+		value |= b;
+	if (hasB)
+		value |= a;
+	return value;
+}
+
+static uint32 CCMangleButtons(uint32 button, WPADDataFormat format)
+{
+	if (!CrowdControl::AreButtonsSwapped())
+		return button;
+	switch (format)
+	{
+	case kDataFormat_CORE:
+	case kDataFormat_CORE_ACC:
+	case kDataFormat_CORE_ACC_DPD:
+	case kDataFormat_CORE_ACC_DPD_FULL:
+	case kDataFormat_FREESTYLE:
+	case kDataFormat_FREESTYLE_ACC:
+	case kDataFormat_FREESTYLE_ACC_DPD:
+	case kDataFormat_MPLS:
+		button = CCSwapMask(button, kWPADButton_A, kWPADButton_B);
+		button = CCSwapMask(button, kWPADButton_1, kWPADButton_2);
+		break;
+	case kDataFormat_CLASSIC:
+	case kDataFormat_CLASSIC_ACC:
+	case kDataFormat_CLASSIC_ACC_DPD:
+		button = CCSwapMask(button, kCLButton_A, kCLButton_B);
+		button = CCSwapMask(button, kCLButton_X, kCLButton_Y);
+		button = CCSwapMask(button, kCLButton_L, kCLButton_R);
+		button = CCSwapMask(button, kCLButton_ZL, kCLButton_ZR);
+		break;
+	case kDataFormat_URCC:
+		button = CCSwapMask(button, kProButton_A, kProButton_B);
+		button = CCSwapMask(button, kProButton_X, kProButton_Y);
+		button = CCSwapMask(button, kProButton_L, kProButton_R);
+		button = CCSwapMask(button, kProButton_ZL, kProButton_ZR);
+		break;
+	default:
+		break;
+	}
+	return button;
+}
+
+static glm::vec2 CCMangleAxis(glm::vec2 axis)
+{
+	if (CrowdControl::AreControlsInverted())
+		return -axis;
+	return axis;
+}
 
 WPADController::WPADController(size_t player_index, WPADDataFormat data_format)
 	: EmulatedController(player_index), m_data_format(data_format)
@@ -77,6 +136,7 @@ void WPADController::WPADRead(WPADStatus_t* status)
 			button |= value;
 		}
 	}
+	button = CCMangleButtons(button, m_data_format);
 
 	m_homebutton_down |= is_home_down();
 
@@ -102,7 +162,7 @@ void WPADController::WPADRead(WPADStatus_t* status)
 		memset(ex_status, 0x00, sizeof(*ex_status));
 		ex_status->button = button;
 
-		auto axis = get_axis();
+		auto axis = CCMangleAxis(get_axis());
 		axis *= 127.0f;
 		ex_status->fsStickX = (sint8)axis.x;
 		ex_status->fsStickY = (sint8)axis.y;
@@ -120,7 +180,7 @@ void WPADController::WPADRead(WPADStatus_t* status)
 		memset(ex_status, 0x00, sizeof(*ex_status));
 		ex_status->clButton = button;
 		
-		auto axis = get_axis();
+		auto axis = CCMangleAxis(get_axis());
 		axis *= 2048.0f;
 		ex_status->clLStickX = (uint16)axis.x;
 		ex_status->clLStickY = (uint16)axis.y;
@@ -159,7 +219,7 @@ void WPADController::WPADRead(WPADStatus_t* status)
 		ex_status->cable = TRUE;
 		ex_status->charge = TRUE;
 
-		auto axis = get_axis();
+		auto axis = CCMangleAxis(get_axis());
 		axis *= 2048.0f;
 		ex_status->ucLStickX = (uint16)axis.x;
 		ex_status->ucLStickY = (uint16)axis.y;
@@ -209,6 +269,8 @@ void WPADController::KPADRead(KPADStatus_t& status, const BtnRepeat& repeat)
 			*hold |= value;
 		}
 	}
+	// Applied before trig/release are derived so press/release events stay consistent.
+	*hold = CCMangleButtons(*hold, m_data_format);
 
 	m_homebutton_down |= is_home_down();
 	
@@ -231,8 +293,8 @@ void WPADController::KPADRead(KPADStatus_t& status, const BtnRepeat& repeat)
 		}
 	}
 
-	// axis
-	const auto axis = get_axis();
+	// axis (invert applies to the main/movement stick only, same as Dolphin)
+	const auto axis = CCMangleAxis(get_axis());
 	const auto rotation = get_rotation();
 
 	*release = m_last_holdvalue & ~*hold;
