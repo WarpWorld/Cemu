@@ -259,7 +259,7 @@ void CemuConfig::Load(XMLConfigParser& parser)
 	auto notification_node = graphic.get("Notification");
 	if (notification_node.valid())
 	{
-		notification.position = notification_node.get("Position", ScreenPosition::kTopLeft);
+		notification.position = notification_node.get("Position", ScreenPosition::kTopRight);
 		notification.text_color = notification_node.get("TextColor", 0xFFFFFFFF);
 		notification.text_scale = notification_node.get("TextScale", 100);
 		notification.controller_profiles = notification_node.get("ControllerProfiles", true);

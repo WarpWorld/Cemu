@@ -1846,6 +1846,9 @@ public:
 		sizer->Add(new wxStaticText(parent, wxID_ANY, versionString), wxSizerFlags().Border(wxALL, 3).Border(wxTOP, 10));
 		sizer->Add(new wxHyperlinkCtrl(parent, -1, "https://cemu.info", "https://cemu.info"), wxSizerFlags().Expand().Border(wxTOP | wxBOTTOM, 3));
 
+		sizer->Add(new wxStaticText(parent, wxID_ANY, _("Crowd Control branch")), wxSizerFlags().Border(wxTOP, 3));
+		sizer->Add(new wxHyperlinkCtrl(parent, -1, "https://github.com/WarpWorld/CEMU", "https://github.com/WarpWorld/CEMU"), wxSizerFlags().Expand().Border(wxBOTTOM, 3));
+
 		sizer->AddSpacer(3);
 		sizer->Add(new wxStaticLine(parent), wxSizerFlags().Expand().Border(wxRIGHT, 4));
 		sizer->AddSpacer(5);

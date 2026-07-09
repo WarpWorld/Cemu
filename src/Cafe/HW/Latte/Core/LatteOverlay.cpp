@@ -442,7 +442,10 @@ void LatteOverlay_RenderNotifications(ImVec2& position, ImVec2& pivot, sint32 di
 
 		for (const auto& entry : g_notifications)
 		{
-			s_misc_notifications.emplace_back(entry.first, tick + std::chrono::milliseconds(entry.second));
+			s_misc_notifications.emplace(
+				s_misc_notifications.begin(),
+				entry.first,
+				tick + std::chrono::milliseconds(entry.second));
 		}
 
 		g_notifications.clear();

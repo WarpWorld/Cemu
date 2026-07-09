@@ -463,7 +463,7 @@ struct CemuConfig
 
 	struct
 	{
-		ScreenPosition position = ScreenPosition::kTopLeft;
+		ScreenPosition position = ScreenPosition::kTopRight;
 		uint32 text_color = 0xFFFFFFFF;
 		sint32 text_scale = 100;
 		bool controller_profiles = true;
